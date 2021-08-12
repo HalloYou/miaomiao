@@ -34,6 +34,7 @@ export default {
     Header,
     TabBar,
   },
+  mounted() {},
 };
 </script>
 <style scoped>
