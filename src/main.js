@@ -2,6 +2,10 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import Scroller from '@/components/Scroller'
+import Loading from '@/components/Loading'
+Vue.component('Scroller', Scroller)
+Vue.component('Loading', Loading)
 
 import axios from 'axios'
 Vue.prototype.axios = axios;

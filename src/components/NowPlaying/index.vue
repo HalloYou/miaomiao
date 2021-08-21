@@ -1,36 +1,141 @@
 <template>
-  <div class="movie_body">
-    <ul>
-      <li v-for="item in movieList" :key="item.id">
-        <div class="pic_show"><img :src="item.img | setWH('128.180')" /></div>
-        <div class="info_list">
-          <h2>{{ item.nm }} <img v-if="item.version" src="@/assets/maxs.png" alt=""></h2>
-          <p>
-            观众评 <span class="grade">{{ item.sc }}</span>
-          </p>
-          <p>主演: {{item.star}}</p>
-          <p>{{item.showInfo}}</p>
-        </div>
-        <div class="btn_mall">购票</div>
-      </li>
-    </ul>
+  <div class="movie_body" ref="movie_body">
+    <Loading v-if="isLoading" />
+    <Scroller
+      v-else
+      :handleToScroll="handleToScroll"
+      :handleToTouchEnd="handleToTouchEnd"
+    >
+      <ul>
+        <li class="pullDown">{{ pullDownMsg }}</li>
+        <li v-for="item in movieList" :key="item.id">
+          <div class="pic_show" @click="handleToDetail">
+            <img :src="item.poster | setWH('128.180')" />
+          </div>
+          <div class="info_list">
+            <h2>
+              {{ item.name }}
+              <img
+                v-if="item.item.name === '3D'"
+                src="@/assets/maxs.png"
+                alt=""
+              />
+            </h2>
+            <p>
+              观众评 <span class="grade">{{ item.grade }}</span>
+            </p>
+            <p>
+              主演:
+              <label v-for="(item1, index) in item.actors" :key="index">
+                {{ item1.name }}
+              </label>
+            </p>
+            <p>{{ item.nation }}</p>
+          </div>
+          <div class="btn_mall">购票</div>
+        </li>
+      </ul>
+    </Scroller>
   </div>
 </template>
 <script>
+// import BScroll from "better-scroll";
 export default {
   name: "nowPlaying",
   data() {
     return {
       movieList: [],
+      pullDownMsg: "",
+      isLoading: true,
+      prevCityId: -1,
     };
   },
-  mounted() {
-    this.axios.get("/ajax/movieOnInfoList").then((res) => {
-      var msg = res.statusText;
-      if (msg == "OK") {
-        this.movieList = res.data.movieList;
+  activated() {
+    var cityId = this.$store.state.city.id;
+    if (this.prevCityId === cityId) {
+      return;
+    }
+    this.isLoading = true;
+
+    this.axios({
+      url: `https://m.maizuo.com/gateway?cityId=${cityId}&pageNum=1&pageSize=10&type=1&k=197523`,
+      headers: {
+        "X-Client-Info":
+          '{"a":"3000","ch":"1002","v":"5.0.4","e":"1620796061118386478546945"}',
+        "X-Host": "mall.film-ticket.film.list",
+      },
+    }).then((res) => {
+      var msg = res.data.msg;
+      if (msg == "ok") {
+        this.movieList = res.data.data.films;
+        this.isLoading = false;
+        this.prevCityId = cityId
+        // this.$nextTick(() => {
+        //   var scroll = new BScroll(this.$refs.movie_body, {
+        //     click: true,
+        //     probeType: 1,
+        //   });
+        //   scroll.on("scroll", (pos) => {
+        //     // console.log("scroll");
+        //     if (pos.y > 30) {
+        //       this.pullDownMsg = "正在更新";
+        //     }
+        //   });
+        //   scroll.on("touchEnd", (pos) => {
+        //     if (pos.y > 30) {
+        //       this.axios({
+        //         url: "https://m.maizuo.com/gateway?cityId=110100&pageNum=1&pageSize=5&type=1&k=197523",
+        //         headers: {
+        //           "X-Client-Info":
+        //             '{"a":"3000","ch":"1002","v":"5.0.4","e":"1620796061118386478546945"}',
+        //           "X-Host": "mall.film-ticket.film.list",
+        //         },
+        //       }).then((res) => {
+        //         var msg = res.data.msg;
+        //         if (msg == "ok") {
+        //           this.pullDownMsg = "更新成功";
+        //           setTimeout(() => {
+        //             this.movieList = res.data.data.films;
+        //             this.pullDownMsg = "";
+        //           }, 1000);
+        //         }
+        //       });
+        //     }
+        //   });
+        // });
       }
     });
+  },
+  methods: {
+    handleToDetail() {
+      console.log("handleToDetail");
+    },
+    handleToScroll(pos) {
+      if (pos.y > 30) {
+        this.pullDownMsg = "正在更新";
+      }
+    },
+    handleToTouchEnd(pos) {
+      if (pos.y > 30) {
+        this.axios({
+          url: "https://m.maizuo.com/gateway?cityId=110100&pageNum=1&pageSize=5&type=1&k=197523",
+          headers: {
+            "X-Client-Info":
+              '{"a":"3000","ch":"1002","v":"5.0.4","e":"1620796061118386478546945"}',
+            "X-Host": "mall.film-ticket.film.list",
+          },
+        }).then((res) => {
+          var msg = res.data.msg;
+          if (msg == "ok") {
+            this.pullDownMsg = "更新成功";
+            setTimeout(() => {
+              this.movieList = res.data.data.films;
+              this.pullDownMsg = "";
+            }, 1000);
+          }
+        });
+      }
+    },
   },
 };
 </script>
@@ -104,5 +209,11 @@ export default {
 }
 .movie_body .btn_pre {
   background-color: #3c9fe6;
+}
+.movie_body .pullDown {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  text-align: center;
 }
 </style>

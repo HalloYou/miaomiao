@@ -1,23 +1,26 @@
 <template>
   <div class="cinema_body">
-    <ul>
-      <li v-for="item in cinemaList" :key="item.cinemaId">
-        <div>
-          <span>{{ item.name }}</span>
-          <span class="q"
-            ><span class="price">{{ item.lowPrice / 100 }}</span> 元起</span
-          >
-        </div>
-        <div class="address">
-          <span>{{item.address}}</span>
-          <span>距离未知</span>
-        </div>
-        <!-- <div class="card">
+    <Loading v-if="isLoading" />
+    <Scroller v-else :handleToTouchEnd="handleToTouchEnd">
+      <ul>
+        <li v-for="item in cinemaList" :key="item.cinemaId">
+          <div>
+            <span>{{ item.name }}</span>
+            <span class="q"
+              ><span class="price">{{ item.lowPrice / 100 }}</span> 元起</span
+            >
+          </div>
+          <div class="address">
+            <span>{{ item.address }}</span>
+            <span>距离未知</span>
+          </div>
+          <!-- <div class="card">
           <div>小吃</div>
           <div>折扣卡</div>
         </div> -->
-      </li>
-    </ul>
+        </li>
+      </ul>
+    </Scroller>
   </div>
 </template>
 <script>
@@ -26,11 +29,18 @@ export default {
   data() {
     return {
       cinemaList: [],
+      isLoading: true,
+      prevCityId: -1,
     };
   },
-  mounted() {
+  activated() {
+    var cityId = this.$store.state.city.id;
+    if (this.prevCityId === cityId) {
+      return;
+    }
+    this.isLoading = true;
     this.axios({
-      url: "https://m.maizuo.com/gateway?cityId=210300&ticketFlag=1&k=9100784",
+      url: `https://m.maizuo.com/gateway?cityId=${cityId}&ticketFlag=1&k=9100784`,
       headers: {
         "X-Client-Info":
           '{"a":"3000","ch":"1002","v":"5.0.4","e":"1620796061118386478546945","bc":"210300"}',
@@ -38,7 +48,12 @@ export default {
       },
     }).then((res) => {
       this.cinemaList = res.data.data.cinemas;
+      this.isLoading = false;
+      this.prevCityId = cityId;
     });
+  },
+  methods: {
+    handleToTouchEnd() {},
   },
 };
 </script>
