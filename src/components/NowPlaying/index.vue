@@ -8,12 +8,12 @@
     >
       <ul>
         <li class="pullDown">{{ pullDownMsg }}</li>
-        <li v-for="item in movieList" :key="item.id">
-          <div class="pic_show" @click="handleToDetail">
+        <li v-for="item in movieList" :key="item.filmId">
+          <div class="pic_show" @click="handleToDetail(item.filmId)">
             <img :src="item.poster | setWH('128.180')" />
           </div>
           <div class="info_list">
-            <h2>
+            <h2 @click="handleToDetail(item.filmId)">
               {{ item.name }}
               <img
                 v-if="item.item.name === '3D'"
@@ -69,7 +69,7 @@ export default {
       if (msg == "ok") {
         this.movieList = res.data.data.films;
         this.isLoading = false;
-        this.prevCityId = cityId
+        this.prevCityId = cityId;
         // this.$nextTick(() => {
         //   var scroll = new BScroll(this.$refs.movie_body, {
         //     click: true,
@@ -107,8 +107,9 @@ export default {
     });
   },
   methods: {
-    handleToDetail() {
-      console.log("handleToDetail");
+    handleToDetail(movieId) {
+      // console.log("handleToDetail", movieId);
+      this.$router.push("/movie/detail/1/" + movieId);
     },
     handleToScroll(pos) {
       if (pos.y > 30) {

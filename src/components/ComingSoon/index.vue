@@ -4,12 +4,14 @@
     <Scroller v-else :handleToTouchEnd="handleToTouchEnd">
       <ul>
         <li v-for="(item, index) in comingList" :key="index">
-          <div class="pic_show"><img :src="item.poster" /></div>
+          <div class="pic_show" @click="handleToDetail(item.filmId)">
+            <img :src="item.poster" />
+          </div>
           <div class="info_list">
-            <h2>{{ item.name }}</h2>
+            <h2 @click="handleToDetail(item.filmId)">{{ item.name }}</h2>
             <!-- <p><span class="person">17746</span> 人想看</p> -->
             <p>主演: {{ item.director }}</p>
-            <p>{{ timestampToTime(item.premiereAt) }}上映</p>
+            <p>{{ item.premiereAt | timestampToTime }}上映</p>
           </div>
           <div class="btn_pre">预售</div>
         </li>
@@ -50,23 +52,8 @@ export default {
     });
   },
   methods: {
-    timestampToTime(timestamp) {
-      var date = new Date(timestamp * 1000); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
-      var Y = date.getFullYear() + "-";
-      var M =
-        (date.getMonth() + 1 < 10
-          ? "0" + (date.getMonth() + 1)
-          : date.getMonth() + 1) + "-";
-      var D =
-        (date.getDate() < 10 ? "0" + date.getDate() : date.getDate()) + " ";
-      var h =
-        (date.getHours() < 10 ? "0" + date.getHours() : date.getHours()) + ":";
-      var m =
-        (date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes()) +
-        ":";
-      var s =
-        date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-      return Y + M + D + h + m + s;
+    handleToDetail(movieId) {
+      this.$router.push("/movie/detail/2/" + movieId);
     },
     handleToTouchEnd() {},
   },
