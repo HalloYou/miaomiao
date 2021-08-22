@@ -7,7 +7,10 @@
 
     <div v-else id="content" class="contentDetail">
       <div class="detail_list">
-        <div class="detail_list_bg"></div>
+        <div
+          class="detail_list_bg"
+          :style="{ 'background-image': 'url(' + detailMovie.poster + ')' }"
+        ></div>
         <div class="detail_list_filter"></div>
         <div class="detail_list_content">
           <div class="detail_list_img">
